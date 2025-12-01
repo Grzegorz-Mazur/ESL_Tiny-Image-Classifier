@@ -8,14 +8,14 @@ from torchvision.models import mobilenet_v2
 
 
 # =========================================
-#  Ładowanie CIFAR-10 (te same transformacje)
+#  Ładowanie CIFAR-10
 # =========================================
 def get_cifar10_testloader(batch_size=128):
-    # Zakładamy, że CIFAR-10 jest już pobrany ręcznie
+    # CIFAR-10 jest już pobrany ręcznie
     # Struktura:
     # ESL_Tiny-Image-Classifier/
     #   data/cifar-10-batches-py/
-    #   models/evaluate_models.py
+    
     import os
 
     data_root = os.path.join(os.path.dirname(__file__), "..", "data")
@@ -50,14 +50,13 @@ def get_cifar10_testloader(batch_size=128):
 #  Wczytanie modelu MobileNetV2 dla CIFAR-10
 # =========================================
 def load_mobilenet_model(weights_path, device):
-    # NIE używamy pretrained, żeby nic nie pobierać z internetu
     model = mobilenet_v2(weights=None)
 
-    # Podmiana klasyfikatora na 10 klas
+    
     in_features = model.classifier[1].in_features
     model.classifier[1] = nn.Linear(in_features, 10)
 
-    # Wczytywanie wag wytrenowanych przez Ciebie
+    # Wczytywanie wag wytrenowanych przez nas
     state = torch.load(weights_path, map_location=device)
     model.load_state_dict(state)
 
@@ -108,14 +107,11 @@ def count_nonzero_params(model):
     return nonzero, total, sparsity
 
 
-# =========================================
-#  Główny kod
-# =========================================
+
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Urządzenie: {device}")
 
-    # Wczytanie CIFAR-10 test setu
     test_loader = get_cifar10_testloader()
 
     print("\nŁadowanie modeli...")
